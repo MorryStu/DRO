@@ -1,4 +1,4 @@
-#define clk 2
+#define clk 23
 #define dat 4
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
