@@ -1,0 +1,71 @@
+/*
+
+  Pins require interrups to read scale value. Scale is incremental only
+  pinA, pinB are for dro scale 1
+  pinC, pinD1 are for dro scale 2
+
+  D2 = pinA - Scale 1 clk
+  D3 = pinB - scale 1 data
+  D4 = pinC - scale 2 clk
+  D5 = pinD - scale 2 data
+*/
+#include <avr/interrupt.h>
+const int pinA = 2, pinB = 3, phaseLookup1[] = {0, -1, 1, -1, 1, 0, -1, -1, -1, 1, 0, 1, 1, 1, -1, 0};
+const int pinC = 4, pinD = 5, phaseLookup2[] = {0, -1, 1, -1, 1, 0, -1, -1, -1, 1, 0, 1, 1, 1, -1, 0}; // seperat lookup tables for each scale
+
+volatile bool A = false, B = false, C = false, D = false, updated = false;
+volatile int scale1 = 0, phase1 = 0, scale2 = 0, phase2 = 0;
+
+
+void setup()
+{
+  Serial.begin(9600);
+  Serial.println("T.I.S.M");// Goolge it
+  pinMode(pinA, INPUT);
+  pinMode(pinB, INPUT);
+  pinMode(pinC, INPUT);
+  pinMode(pinD, INPUT);
+  cli();
+  PCICR |= B00000100;// Enable PCIE2 Bit3 = 1 (Port D)
+  PCMSK2 |= B00111100;// Enable PCINT20  & PCINT21 (Pins D4 & D5) + D2 + D3
+
+  sei();
+}
+
+void loop() {
+  if (updated)
+  {
+    Serial.println(String(scale1*2));
+    Serial.println(String(scale2*2));
+    updated = false;
+  }
+}
+
+ISR (PCINT2_vect)
+{
+  static byte oldState = 0;
+  byte newState = PIND & B111100;
+  if (newState != oldState) {
+    A = (newState & 1 << pinA) > 0; //Scale 1
+    B = (newState & 1 << pinB) > 0; //  "
+    C = (newState & 1 << pinC) > 0; // Scale 2
+    D = (newState & 1 << pinD) > 0; // "
+    if ((newState & B1100) != (oldState & B1100)) {
+      phase1 <<= 1;//Scale 1
+      phase1 |= A;
+      phase1 <<= 1;
+      phase1 |= B;
+      phase1 &= 0xF;
+      scale1 += phaseLookup1[phase1];
+    }
+    if ((newState & B110000) != (oldState & B110000)) {
+      phase2 <<= 1;//Scale 2
+      phase2 |= C;
+      phase2 <<= 1;
+      phase2 |= D;
+      phase2 &= 0xF;
+      scale2 += phaseLookup2[phase2];
+    }
+    updated = true;
+  }
+}
