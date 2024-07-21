@@ -11,7 +11,7 @@
 */
 #include <avr/interrupt.h>
 const int pinA = 2, pinB = 3, phaseLookup1[] = {0, -1, 1, -1, 1, 0, -1, -1, -1, 1, 0, 1, 1, 1, -1, 0};
-const int pinC = 4, pinD = 5, phaseLookup2[] = {0, -1, 1, -1, 1, 0, -1, -1, -1, 1, 0, 1, 1, 1, -1, 0}; // seperat lookup tables for each scale
+const int pinC = 4, pinD = 5, phaseLookup2[] = {0, -1, 1, -1, 1, 0, -1, -1, -1, 1, 0, 1, 1, 1, -1, 0}; // seperate lookup tables for each scale
 
 volatile bool A = false, B = false, C = false, D = false, updated = false;
 volatile int scale1 = 0, phase1 = 0, scale2 = 0, phase2 = 0;
