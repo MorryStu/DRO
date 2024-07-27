@@ -1,0 +1,82 @@
+#include <Encoder.h> // Uses 5um (0.005mm) incremental glass scale linear encoder https://www.vevor.com.au/linear-scale-c_10122/250mm-linear-scale-for-milling-lathe-machine-drilling-3m-signal-cable-precision-p_010844850404
+
+Encoder scale1(2, 4); // Spread interupt pins 2 & 3 accross each scale, 
+Encoder scale2(3, 5);
+
+const int ZincPin = 6; 
+const int ZeroPin =7; 
+
+int ZeroPinState = 0; // used in loop() to switch to zero() to set zero point for zero measurment when read head set, regardless of intitial power-up position of read head 
+int ZincPinState = 0; // used to creat incremental value from zero when read head is set to an incremental point. 
+
+long ref1 = 0; // reference value
+long ref2 = 0; // reference value
+long incpos = 0;
+long Zinc = 0;
+long Zero = 0;
+long oldPosition1  = 0;
+long oldPosition2  = 0;
+long oldPosition3 = 0;
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Zero set button:");
+  pinMode(ZeroPin, INPUT_PULLUP);
+  pinMode(ZincPin, INPUT_PULLUP);
+  }
+
+void loop() {
+  ZeroPinState = digitalRead(ZeroPin);
+     if (ZeroPinState == CHANGE) {
+      
+  long newPosition1 = scale1.read();
+     if (newPosition1 != oldPosition1) 
+         oldPosition1 = newPosition1;
+
+  long newPosition2 = scale2.read();
+    if (newPosition2 != oldPosition2) 
+    oldPosition2 = newPosition2;
+    
+    ref1 = newPosition1;
+    ref2 = newPosition2;
+    Serial.print(ref1/200.00,3),Serial.print("mm X-Slide : "),
+    Serial.print(" ---ZeroPinstate = "),Serial.println(ZeroPinState);
+     }
+  else {
+      zero();
+         }
+}
+void zero() {
+
+    ZincPinState = digitalRead(ZincPin);
+     if (ZincPinState == CHANGE)
+      {
+        long newPosition3 = scale1.read();
+        (newPosition3 != oldPosition3) ;
+         oldPosition3 = newPosition3;
+         Zinc = (newPosition3-ref1);
+          Serial.print(Zinc/200.00,3),Serial.print("  =Zinc=  :");
+          Serial.print(ref1/200.00,3),Serial.print("  =ref1= : ");
+          Serial.print(newPosition3/200.00,3),Serial.print("  ==newpos3==  ; ");
+          Serial.print(scale1.read()/200.00,3), Serial.print("  ==scale1==  ; ");
+          Serial.print("=ZincPinstate "),Serial.print(ZincPinState),Serial.println( " ~~ void zero() ");
+          }
+
+     else {
+      zinc();
+    }
+     }
+     
+void zinc()
+{
+    long newPosition3 = scale1.read();
+        (newPosition3 != oldPosition3); 
+         oldPosition3 = newPosition3;
+         incpos = newPosition3-ref1;
+         Zero = (Zinc+ref1)-newPosition3;
+         Serial.print(incpos/200.00,3),Serial.print("  incpos C : ");
+         Serial.print(Zero/200.00,3),Serial.print("  Zero  C : ");
+         Serial.print(" ZincPinstate = "),Serial.print(ZincPinState), Serial.println(" ~+~ void zero() ");
+
+         }
+     //delay(1000)
