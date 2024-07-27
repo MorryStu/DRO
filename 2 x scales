@@ -1,0 +1,29 @@
+void X_zero() {
+
+    X_ZincPinState = digitalRead(X_ZincPin);
+     if (X_ZincPinState == CHANGE)
+      {
+        long newPosition3 = X_scale.read();
+        (newPosition3 != oldPosition3) ;
+         oldPosition3 = newPosition3;
+
+         X_Zinc = (newPosition3-ref1);// ref1 from loop(). is the (new)Position of the reader when ZincPinState=change. This value is fixed when used in else { }
+
+          Serial.print(X_Zinc/200.00,3),Serial.print("  =Zinc=  :");
+          Serial.print(ref1/200.00,3),Serial.print("  =ref1= : ");
+          Serial.print("=X-ZincPinstate "),Serial.print(X_ZincPinState),Serial.println( " ~~ void zero() ");
+          }
+
+     else {
+          long newPosition3 = X_scale.read();
+        (newPosition3 != oldPosition3); 
+         oldPosition3 = newPosition3;
+
+         X_zeropos = newPosition3-ref1;
+         X_Zero = (X_Zinc+ref1)-newPosition3;
+
+         Serial.print(X_zeropos/200.00,3),Serial.print("  Zero Posn mm : ");
+         Serial.print(X_Zero/200.00,3),Serial.print(" Increment Posn mm : ");
+         Serial.print(" ZincPinstate = "),Serial.println(X_ZincPinState);
+         }
+}
