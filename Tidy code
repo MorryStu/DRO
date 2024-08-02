@@ -1,7 +1,7 @@
 #include <Encoder.h> // Uses 5um (0.005mm) incremental glass scale linear encoder https://www.vevor.com.au/linear-scale-c_10122/250mm-linear-scale-for-milling-lathe-machine-drilling-3m-signal-cable-precision-p_010844850404
 
 Encoder scale1(2, 4); // Spread interupt pins 2 & 3 accross each scale, 
-Encoder scale2(3, 5);
+Encoder scale2(3, 5); // res future use
 
 const int ZincPin = 6; 
 const int ZeroPin =7; 
